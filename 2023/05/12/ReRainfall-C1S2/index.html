@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-cn" theme-mode="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Re:Rainfall 移除快板曲，全mod都高兴 | Anria's blog</title><link rel="icon" type="image/x-icon" href="/favicon.ico"><script>var config = {"root":"/","search":{"preload":false,"activeHolder":"键入以继续","blurHolder":"数据检索","noResult":"无 $0 相关数据"},"code":{"codeInfo":"$0 - 共 $1 行","copy":"复制","copyFinish":"复制成功","expand":"展开"}}</script><script src="//unpkg.com/mermaid@9.2.2/dist/mermaid.min.js"></script><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lightgallery.css"><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lg-zoom.css"><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lg-thumbnail.css"><link type="text/css" rel="stylesheet" href="/lib/fontawesome/brands.min.css"><link type="text/css" rel="stylesheet" href="/lib/fontawesome/fontawesome.min.css"><link rel="stylesheet" href="/css/arknights.css"><script>if (window.localStorage.getItem('theme-mode') === 'light') document.documentElement.setAttribute('theme-mode', 'light')
+if (window.localStorage.getItem('theme-mode') === 'dark') document.documentElement.setAttribute('theme-mode', 'dark')</script><style>@font-face {
+ font-family: BenderLight;
+ src: local('Bender'), url("/font/BenderLight.ttf");
+}
+@font-face {
+ font-family: 'JetBrains Mono';
+ src: local('JetBrains Mono'), url('/font/JetBrainsMono-Regular.woff2') format('woff2');
+}
+@font-face {
+ font-family: 'Font Awesome 6 Brands';
+ src: local('Font Awesome 6 Brands'), url('/lib/fontawesome/fa-brands.woff2') format('woff2');
+}
+@font-face {
+ font-family: 'Font Awesome 6 Free';
+ src: local('Font Awesome 6 Free'), url('/lib/fontawesome/fa-regular.woff2') format('woff2');
+}</style><style>:root {
+  --dark-background: url('https://ak.hypergryph.com/assets/index/images/ak/pc/bk.jpg');
+  --light-background: url('/img/bk.jpg');
+}</style><meta name="generator" content="Hexo 6.3.0"></head><body><div class="loading" style="opacity: 0"><div class="loadingBar left"></div><div class="loadingBar right"></div></div><main><header class="closed"><nav><div class="navBtn hide"><i class="navBtnIcon"><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span></i></div><div class="navItem" id="search-header"><span class="navItemTitle"><input autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="数据检索" spellcheck="false" maxlength="50" type="text" id="search-input"></span></div><div class="navItem" id="search-holder"></div><div class="search-popup"><div id="search-result"></div></div><ol class="navContent"><li class="navItem"><a class="navBlock" href="/"><span class="navItemTitle">Home</span></a></li><li class="navItem" matchdata="categories,tags"><a class="navBlock" href="/archives/"><span class="navItemTitle">Archives</span></a></li><li class="navItem"><a class="navBlock" href="/about"><span class="navItemTitle">About</span></a></li></ol></nav></header><article><div id="post-bg"><div id="post-title"><h1>Re:Rainfall 移除快板曲，全mod都高兴</h1><div id="post-info"><span>文章发布时间: <div class="control"><time datetime="2023-05-12T14:06:45.000Z" id="date"> 2023-05-12</time></div></span><br><span>最后更新时间: <div class="control"><time datetime="2023-05-13T00:09:47.540Z" id="updated"> 2023-05-13</time></div></span></div></div><hr><div id="post-content"><p>Section 2 - 移除快板曲，全mod都高兴<br>在上一节中，我们已经简单了解了最基本的修改。<br>现在，是时候向smali出发了。</p>
+<blockquote>
+<p>简单介绍一下Smali：<br>这种语言是dex中机器语言（注：实际上是dalvik字节码）的一种转换形式，更加方便人阅读以及修改。它还有一个配套的软件，称作Baksmali，可以用它来反编译dex。    </p>
+</blockquote>
+<p>如果你在阅读Re:Rainfall之前对mod已稍有了解甚至于实践，你应该听说过Impact_allegretto.ogg的大名。<br>没听过？没有关系，笔者稍作解释：它是原版文二当中的开始音乐，每次打开游戏都会先自动播放这个音频。<br>有modder尝试添加其他音乐，结果把Impact_allegretto.ogg给删了—此时，他们就会奇怪：我去，怎么没声了？<br>然而在设置中的音频菜单仍然可以播放其他音频。<br>为什么会出现这种情况？<br>打开dex，我们需要借助另外一个强大的工具：搜索。<br>点击开始新搜索，目标选择“类”（注：类是代码的“容器”，所有代码都应当被放在一个类中），接着在搜索内容中键入Sound（注：“声音”的英语）。<br>你应当可以看到有多个类出现，例如：<br>SoundManager,SoundManager$1,SoundManager$2……<br>后面这些带着“$”符号的，我们称它们为$前这个类的“子类”。在java代码中其实没有这些子类的文件存在，但在编译时为了处理类中的匿名类和被声明的子类，会生成这些新文件。<br>点开SoundManager，这才是文二里声音的管理器（注：这里涉及到java的设计模式，本教程并不详细叙述。Manager，即管理器，通常是某个模块&#x2F;功能的中枢）。<br>点开右上角的指南针，你应当会看到这个类值和方法的列表：值为黄色，方法为红色。<br>翻译一下这些方法和值的名字，我们可以看到一个方法的名字显得尤为突出：“PlayStartMusic”，即“播放开始音乐”。<br>转向这个方法，一段熟悉的字符串将会映入我们的眼帘。没错，就是“Impact_allegretto.ogg”。或者完整一点，“music&#x2F;Impact_allegretto.ogg”。把这个用双引号包裹的字符串里的内容稍作修改，你就可以更改起始音乐了。<br>例如，现在我们想把起始音乐改为“Start.ogg”，存放在music文件夹下（这里省略了前面的assets&#x2F;game），那么就要改成：“music&#x2F;Start.ogg”。<br>假设一切顺利，打开游戏你应该就能听到你选的高雅（划）乐曲了。</p>
+<ul>
+<li>WIP -</li>
+</ul>
+<div id="paginator"></div></div><div id="post-footer"><div id="pages" style="justify-content: flex-end"><div class="footer-link" style="width: 50%;right:1px;border-left:1px #fe2 solid"><a href="/2023/05/12/ReRainfall-C1S1/">Re:Rainfall 从常量池出发 Prev →</a></div></div></div></div><div class="bottom-btn"><div><a id="to-top" onClick="scrolls.scrolltop();" title="回到顶部" style="opacity: 0; display: none;">∧</a><a id="to-index" href="#toc-div" title="文章目录">≡</a><a id="color-mode" onClick="colorMode.change()" title="切换主题"></a></div></div></article><aside><div id="about"><a href="/" id="logo"><img src="https://ak.hypergryph.com/assets/index/images/ak/pc/faction/1.png" alt="Logo"></a><h1 id="Dr"><a href="/">anria</a></h1><div id="description"><p></p></div></div><div id="aside-block"></div><footer><nobr>构建自 <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></nobr><wbr><nobr> 使用主题 <a target="_blank" rel="noopener" href="https://github.com/Yue-plus/hexo-theme-arknights">Arknights</a></nobr><wbr><nobr>主题作者 <a target="_blank" rel="noopener" href="https://github.com/Yue-plus">Yue_plus</a></nobr></footer></aside></main><script src="/js/search.js"></script><script src="/js/arknights.js"></script><script src="//unpkg.com/lightgallery@2.7.1/lightgallery.min.js"></script><script src="//unpkg.com/lightgallery@2.7.1/plugins/zoom/lg-zoom.min.js"></script><script src="//unpkg.com/lightgallery@2.7.1/plugins/thumbnail/lg-thumbnail.min.js"></script><script src="/js/pjax.js"></script><script class="pjax-js">reset= () => {code.findCode();
+document.querySelector('.lg-container')?.remove()
+lightGallery(document.getElementById('post-bg'), {
+  plugins: [lgZoom,lgThumbnail],
+  selector: '.item-img'})}</script><script>window.addEventListener("load",() => {pjax = new Pjax({
+ cacheBust: false,
+ selectors: ['title','article','#aside-block','.pjax-js'],
+ switches: {'article': Pjax.switches.sideBySide},
+ switchesOptions: {
+   'article': {
+     classNames: {
+       remove: "pjax-out",
+       add: "pjax-in"
+     }
+   }
+ }
+});
+document.addEventListener("pjax:complete", reset);reset()})</script></body></html>

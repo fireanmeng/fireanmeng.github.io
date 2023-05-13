@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="zh-cn" theme-mode="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>[AOC2]论如何干掉结盟 | Anria's blog</title><link rel="icon" type="image/x-icon" href="/favicon.ico"><script>var config = {"root":"/","search":{"preload":false,"activeHolder":"键入以继续","blurHolder":"数据检索","noResult":"无 $0 相关数据"},"code":{"codeInfo":"$0 - 共 $1 行","copy":"复制","copyFinish":"复制成功","expand":"展开"}}</script><script src="//unpkg.com/mermaid@9.2.2/dist/mermaid.min.js"></script><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lightgallery.css"><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lg-zoom.css"><link type="text/css" rel="stylesheet" href="//unpkg.com/lightgallery@2.7.1/css/lg-thumbnail.css"><link type="text/css" rel="stylesheet" href="/lib/fontawesome/brands.min.css"><link type="text/css" rel="stylesheet" href="/lib/fontawesome/fontawesome.min.css"><link rel="stylesheet" href="/css/arknights.css"><script>if (window.localStorage.getItem('theme-mode') === 'light') document.documentElement.setAttribute('theme-mode', 'light')
+if (window.localStorage.getItem('theme-mode') === 'dark') document.documentElement.setAttribute('theme-mode', 'dark')</script><style>@font-face {
+ font-family: BenderLight;
+ src: local('Bender'), url("/font/BenderLight.ttf");
+}
+@font-face {
+ font-family: 'JetBrains Mono';
+ src: local('JetBrains Mono'), url('/font/JetBrainsMono-Regular.woff2') format('woff2');
+}
+@font-face {
+ font-family: 'Font Awesome 6 Brands';
+ src: local('Font Awesome 6 Brands'), url('/lib/fontawesome/fa-brands.woff2') format('woff2');
+}
+@font-face {
+ font-family: 'Font Awesome 6 Free';
+ src: local('Font Awesome 6 Free'), url('/lib/fontawesome/fa-regular.woff2') format('woff2');
+}</style><style>:root {
+  --dark-background: url('https://ak.hypergryph.com/assets/index/images/ak/pc/bk.jpg');
+  --light-background: url('/img/bk.jpg');
+}</style><meta name="generator" content="Hexo 6.3.0"></head><body><div class="loading" style="opacity: 0"><div class="loadingBar left"></div><div class="loadingBar right"></div></div><main><header class="closed"><nav><div class="navBtn hide"><i class="navBtnIcon"><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span><span class="navBtnIconBar"></span></i></div><div class="navItem" id="search-header"><span class="navItemTitle"><input autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="数据检索" spellcheck="false" maxlength="50" type="text" id="search-input"></span></div><div class="navItem" id="search-holder"></div><div class="search-popup"><div id="search-result"></div></div><ol class="navContent"><li class="navItem"><a class="navBlock" href="/"><span class="navItemTitle">Home</span></a></li><li class="navItem" matchdata="categories,tags"><a class="navBlock" href="/archives/"><span class="navItemTitle">Archives</span></a></li><li class="navItem"><a class="navBlock" href="/about"><span class="navItemTitle">About</span></a></li></ol></nav></header><article><div id="post-bg"><div id="post-title"><h1>[AOC2]论如何干掉结盟</h1><div id="post-info"><span>文章发布时间: <div class="control"><time datetime="2023-01-24T17:01:01.000Z" id="date"> 2023-01-25</time></div></span><br><span>最后更新时间: <div class="control"><time datetime="2023-05-12T13:15:51.720Z" id="updated"> 2023-05-12</time></div></span></div></div><hr><div id="post-content"><p>找到getAllianceProposal_Positive方法<br>在<code>return v0</code>语句前一段加入<br><code>const/4 v0, 0x0</code></p>
+<p>然后再找到getAllianceProposal_Negative方法<br>在<code>return v0</code>语句前加入<br><code>const/4 v0, -0x8</code><br>（这两个方法都在dioplmocyManager里）<br>好了 现在结盟可能性这辈子都不可能是“高”了。<br>什么？这两条语句什么意思？<br>好 让我们先来聊聊老卢是怎么写结盟倾向的<br>结盟倾向的分数获取分为两类方法 即getAllianceProposal_Positive（Negative）对应积极（消极）倾向。这个前缀下带有各种理由的分数 例如边界距离&#x2F;政体&#x2F;文明强度等<br>我们上述的这两个方法就是结盟倾向积极与消极的总获取方法。<br>const&#x2F;4 是一条smali的指令 可以简单的理解为向某个变量（其实应该是寄存器，但在这里我们采取更易于理解的方法）存储指定的数据。<br>v0就是我们这个变量的名字 0x0和-0x8自然是我们要存入的内容。<br>为什么要存到v0里？因为下一条语句 return v0的意思就是返回v0变量的值。<br>那么 你可能还想要问 0x0和-0x8到底是啥？ 在这里 我们不细讲 简单的化成常规的数字形式 就是0和-8。如果你还想要深究，可以了解一下16进制。<br>让我们把积极与消极的倾向加在一起：0+(-8)&#x3D;-8。负数 那么AI自然不会同意。如果你想让每次结盟都被同意，可以试试把这两个数值改成别的数字让结果一定是正数。<br>嘿！如果有玩家用s和a切到别的国家强制同意结盟呢？我不想让玩家这么干！<br>emmmm……<br>当然 并不是没有办法。<br>通过mt管理器的dex++编辑器，搜索（代码）rebuildInGame_OfferAlliance，然后进入Menu_InGame_CivInfo_Stats_Actions$8这个结果 按道理来说编辑器会自动帮你定位到这个目标。把定位到的这一行删掉就可以了。<br>至于它的原理 自然非常简单：<br>既然玩家可以发出结盟申请然后切过去同意，那我们不让玩家发出申请不就好了？<br>没错，rebuildInGame_OfferAlliance就是启动结盟申请菜单的方法。 如果我们把这个方法删掉 在按下结盟申请按钮之后根本不会启动结盟申请菜单 自然发不出申请。<br>但你必须要注意一点：删掉这个启动调用不会让AI结盟消失，第一种方法才能让AI结盟消失。毕竟，AI可不需要点开菜单然后按下同意。<br>建议两个方法同时使用，毕竟谁都说不准玩家还能玩出什么花活。</p>
+<p>2023.1.31更新：<br>我去 老卢你坑害我！！！<br>前述方法并不能阻挡AI自主结盟。<br>找到AI_Style类，搜索diplomacyActions_Ally方法，删除<br><code>invoke-static &#123;v1, p1&#125;, Lage/of/civilizations2/jakowski/lukasz/DiplomacyManager;-&gt;sendAllianceProposal(II)V </code><br>语句，即可阻挡AI结盟。<br>原因是AI自主结盟不通过倾向分数来运行，而是自行做了判断……<br>sendAllianceProposal如果是两边AI应该会自动同意，玩家会弹窗 blalala我也懒得写了 就这样</p>
+<div id="paginator"></div></div><div id="post-footer"><div id="pages" style="justify-content: flex-start"><div class="footer-link" style="width: 50%;text-align:right;border-right:1px #fe2 solid"><a href="/2023/02/04/SelfPlunder/">← Next [AOC2]剥削百姓，我抢我自己！</a></div></div></div></div><div class="bottom-btn"><div><a id="to-top" onClick="scrolls.scrolltop();" title="回到顶部" style="opacity: 0; display: none;">∧</a><a id="to-index" href="#toc-div" title="文章目录">≡</a><a id="color-mode" onClick="colorMode.change()" title="切换主题"></a></div></div></article><aside><div id="about"><a href="/" id="logo"><img src="https://ak.hypergryph.com/assets/index/images/ak/pc/faction/1.png" alt="Logo"></a><h1 id="Dr"><a href="/">anria</a></h1><div id="description"><p></p></div></div><div id="aside-block"></div><footer><nobr>构建自 <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></nobr><wbr><nobr> 使用主题 <a target="_blank" rel="noopener" href="https://github.com/Yue-plus/hexo-theme-arknights">Arknights</a></nobr><wbr><nobr>主题作者 <a target="_blank" rel="noopener" href="https://github.com/Yue-plus">Yue_plus</a></nobr></footer></aside></main><script src="/js/search.js"></script><script src="/js/arknights.js"></script><script src="//unpkg.com/lightgallery@2.7.1/lightgallery.min.js"></script><script src="//unpkg.com/lightgallery@2.7.1/plugins/zoom/lg-zoom.min.js"></script><script src="//unpkg.com/lightgallery@2.7.1/plugins/thumbnail/lg-thumbnail.min.js"></script><script src="/js/pjax.js"></script><script class="pjax-js">reset= () => {code.findCode();
+document.querySelector('.lg-container')?.remove()
+lightGallery(document.getElementById('post-bg'), {
+  plugins: [lgZoom,lgThumbnail],
+  selector: '.item-img'})}</script><script>window.addEventListener("load",() => {pjax = new Pjax({
+ cacheBust: false,
+ selectors: ['title','article','#aside-block','.pjax-js'],
+ switches: {'article': Pjax.switches.sideBySide},
+ switchesOptions: {
+   'article': {
+     classNames: {
+       remove: "pjax-out",
+       add: "pjax-in"
+     }
+   }
+ }
+});
+document.addEventListener("pjax:complete", reset);reset()})</script></body></html>
